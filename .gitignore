@@ -1,0 +1,35 @@
+# ── Go ──────────────────────────────────────────
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.*
+*.coverprofile
+profile.cov
+go.work
+go.work.sum
+
+# ── Environment ─────────────────────────────────
+.env
+
+# ── Node / Frontend ─────────────────────────────
+node_modules/
+dist/
+.vite/
+
+# ── IDE / Editor ────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── OS ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Docker ──────────────────────────────────────
+pgdata/
