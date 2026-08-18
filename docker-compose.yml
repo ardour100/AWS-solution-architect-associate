@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: backend_aws_saa
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppassword
+      POSTGRES_DB: appdb
+    ports:
+      # host 5432 is used by another project's postgres (cvreview-db)
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dev_backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: appuser
+      DB_PASSWORD: apppassword
+      DB_NAME: appdb
+      PORT: "8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+  # ──────────────────────────────────────────────
+  # React frontend — served by nginx on :3000
+  # Disabled until the frontend app is scaffolded — uncomment then.
+  # ──────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_aws_saa
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3000}:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
