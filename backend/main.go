@@ -28,10 +28,10 @@ func initDB() {
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("连接数据库失败: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	log.Println("成功连接到 PostgreSQL 数据库！")
+	log.Println("Successfully connected to PostgreSQL database!")
 }
 
 func main() {
