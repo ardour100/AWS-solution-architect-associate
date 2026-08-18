@@ -1,4 +1,6 @@
 # ── Go ──────────────────────────────────────────
+# compiled binary (module name "backend")
+/backend/backend
 *.exe
 *.exe~
 *.dll
