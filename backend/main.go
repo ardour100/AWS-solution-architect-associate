@@ -60,8 +60,8 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("服务启动在端口 :%s", port)
+	log.Printf("Server is running at :%s", port)
 	if err := r.Run(":" + port); err != nil {
-		log.Fatalf("服务启动失败: %v", err)
+		log.Fatalf("Server running failed: %v", err)
 	}
 }
