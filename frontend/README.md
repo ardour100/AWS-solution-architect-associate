@@ -48,9 +48,13 @@ npm run lint    # oxlint
 
 ## Auth flow
 
-- Token and user are kept in `localStorage` (`auth.token`, `auth.user`)
-  and injected as `Authorization: Bearer` by the API client.
-- A 401 on a request that carried a token clears it, so the
-  `RequireAuth` guard redirects to `/login`.
-- Admin routes are guarded by `RequireAdmin`; the nav only shows the
-  question-bank link to admins.
+- **Practice exams are anonymous** — no registration or sign-in needed.
+- Only the question bank (`/admin/questions`) requires a sign-in; it is
+  guarded by `RequireAuth` + `RequireAdmin`, and the nav only shows the
+  link to admins.
+- Test admin account (created idempotently by `npm run db:seed` in the
+  backend): `admin@example.com` / `admin1234` — the login page prefills
+  it.
+- Token and user are kept in `localStorage` (`auth.token`,
+  `auth.user`) and injected as `Authorization: Bearer` by the API
+  client; a 401 on a request that carried a token clears it.

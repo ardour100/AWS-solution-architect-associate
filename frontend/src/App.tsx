@@ -9,22 +9,20 @@ import LoginPage from './pages/LoginPage';
 export default function App() {
   return (
     <Routes>
+      {/* Taking practice exams is anonymous — no account needed. */}
       <Route path="/login" element={<LoginPage />} />
-      <Route
-        element={
-          <RequireAuth>
-            <Layout />
-          </RequireAuth>
-        }
-      >
+      <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/exams/:examId" element={<ExamPage />} />
+        {/* Only question-bank management requires the admin sign-in. */}
         <Route
           path="/admin/questions"
           element={
-            <RequireAdmin>
-              <AdminQuestionsPage />
-            </RequireAdmin>
+            <RequireAuth>
+              <RequireAdmin>
+                <AdminQuestionsPage />
+              </RequireAdmin>
+            </RequireAuth>
           }
         />
       </Route>

@@ -76,6 +76,7 @@ Other scripts:
 npm run dev             # tsx watch src/index.ts
 npm run build           # tsc → dist/
 npm start               # node dist/index.js
+npm run db:seed         # idempotent seed: test admin account (admin@example.com / admin1234)
 npm run db:studio       # drizzle-kit studio — visual DB browser
 npm run db:push         # push schema directly (DEV ONLY — bypasses migrations,
                         # migrations are the source of truth)

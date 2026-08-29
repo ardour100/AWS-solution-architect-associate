@@ -1,13 +1,22 @@
 import { useState, type FormEvent } from 'react';
-import { Navigate } from 'react-router';
+import { Navigate, useLocation, useNavigate } from 'react-router';
 import { errorMessage } from '../api/client';
 import { useAuth } from '../auth/useAuth';
 
+/**
+ * Test admin credentials (created idempotently by `npm run db:seed`
+ * in the backend). Practice exams don't require any account — this
+ * sign-in exists only for managing the question bank.
+ */
+const TEST_EMAIL = 'admin@example.com';
+const TEST_PASSWORD = 'admin1234';
+
 export default function LoginPage() {
-  const { user, login, register } = useAuth();
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { user, login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [email, setEmail] = useState(TEST_EMAIL);
+  const [password, setPassword] = useState(TEST_PASSWORD);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -19,22 +28,13 @@ export default function LoginPage() {
     setError(null);
     setBusy(true);
     try {
-      if (mode === 'signin') {
-        await login(email, password);
-      } else {
-        await register(email, password);
-      }
-      // Success: AuthContext sets the user and the <Navigate> above kicks in.
+      await login(email, password);
+      const from = (location.state as { from?: string } | null)?.from;
+      navigate(from ?? '/', { replace: true });
     } catch (err) {
       setError(errorMessage(err));
       setBusy(false);
     }
-  }
-
-  function switchMode(next: 'signin' | 'signup') {
-    setMode(next);
-    setError(null);
-    setPassword('');
   }
 
   return (
@@ -42,26 +42,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-6 text-center text-white">
           <h1 className="text-3xl font-bold">AWS SAA Practice</h1>
-          <p className="mt-2 text-indigo-100">Solutions Architect Associate — practice platform</p>
+          <p className="mt-2 text-indigo-100">Admin sign in — question bank management</p>
         </div>
 
         <div className="rounded-2xl bg-white p-8 shadow-xl">
-          {/* Mode tabs */}
-          <div className="mb-6 grid grid-cols-2 gap-1 rounded-lg bg-slate-100 p-1">
-            {(['signin', 'signup'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => switchMode(m)}
-                className={`rounded-md py-2 text-sm font-medium transition-colors ${
-                  mode === m ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                {m === 'signin' ? 'Sign in' : 'Create account'}
-              </button>
-            ))}
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-700">
@@ -74,7 +58,6 @@ export default function LoginPage() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
               />
             </div>
@@ -87,15 +70,11 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 required
-                autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
               />
-              {mode === 'signup' && (
-                <p className="mt-1 text-xs text-slate-400">8–72 characters, at least one letter and one number.</p>
-              )}
             </div>
 
             {error && (
@@ -107,10 +86,21 @@ export default function LoginPage() {
               disabled={busy}
               className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
+              {busy ? 'Please wait…' : 'Sign in'}
             </button>
           </form>
+
+          <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-center text-xs text-slate-500">
+            Test account: <code className="font-semibold">{TEST_EMAIL}</code> /{' '}
+            <code className="font-semibold">{TEST_PASSWORD}</code>
+          </p>
         </div>
+
+        <p className="mt-4 text-center text-sm text-indigo-100">
+          <button type="button" onClick={() => navigate('/')} className="underline underline-offset-2">
+            ← Back to practice
+          </button>
+        </p>
       </div>
     </div>
   );

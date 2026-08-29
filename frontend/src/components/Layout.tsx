@@ -12,7 +12,7 @@ export default function Layout() {
 
   function handleLogout() {
     logout();
-    navigate('/login');
+    navigate('/');
   }
 
   return (
@@ -35,17 +35,30 @@ export default function Layout() {
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            <span className="hidden text-slate-500 sm:inline">{user?.email}</span>
-            {isAdmin && (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">Admin</span>
+            {user ? (
+              <>
+                <span className="hidden text-slate-500 sm:inline">{user.email}</span>
+                {isAdmin && (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                    Admin
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              >
+                Admin sign in
+              </Link>
             )}
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-            >
-              Sign out
-            </button>
           </div>
         </div>
       </header>
