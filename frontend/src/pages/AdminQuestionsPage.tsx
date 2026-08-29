@@ -44,7 +44,7 @@ export default function AdminQuestionsPage() {
         <button
           type="button"
           onClick={() => setEditing('new')}
-          className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+          className="rounded-lg bg-brand-700 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-800"
         >
           + New question
         </button>
@@ -59,7 +59,7 @@ export default function AdminQuestionsPage() {
             setIncludeDeleted(e.target.checked);
             setPage(0);
           }}
-          className="h-4 w-4 rounded border-slate-300 accent-indigo-600"
+          className="h-4 w-4 rounded border-slate-300 accent-brand-600"
         />
         Show deleted questions
       </label>
@@ -295,7 +295,7 @@ function QuestionFormModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Which AWS service is a fully managed object store?"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
             />
           </div>
 
@@ -311,7 +311,7 @@ function QuestionFormModal({
                 value={explanation}
                 onChange={(e) => setExplanation(e.target.value)}
                 placeholder="Why is this the correct answer?"
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               />
             </div>
             <div>
@@ -330,7 +330,7 @@ function QuestionFormModal({
                     setOptions((prev) => prev.map((o, i) => ({ ...o, isCorrect: i === firstCorrect })));
                   }
                 }}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"
               >
                 <option value="single">Single choice</option>
                 <option value="multiple">Multiple choice</option>
@@ -364,7 +364,7 @@ function QuestionFormModal({
                     value={option.content}
                     onChange={(e) => patchOption(index, { content: e.target.value })}
                     placeholder={`Option ${option.label}`}
-                    className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                    className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                   <button
                     type="button"
@@ -382,7 +382,7 @@ function QuestionFormModal({
               <button
                 type="button"
                 onClick={addOption}
-                className="mt-2 rounded-md border border-dashed border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-indigo-400 hover:text-indigo-600"
+                className="mt-2 rounded-md border border-dashed border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-brand-400 hover:text-brand-600"
               >
                 + Add option
               </button>
@@ -402,7 +402,7 @@ function QuestionFormModal({
             <button
               type="submit"
               disabled={busy}
-              className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+              className="rounded-lg bg-brand-700 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-800 disabled:opacity-60"
             >
               {busy ? 'Saving…' : isNew ? 'Create question' : `Save as v${question.version + 1}`}
             </button>

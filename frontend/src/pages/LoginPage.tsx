@@ -38,11 +38,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-400 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-700 via-brand-600 to-brand-400 px-4">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center text-white">
           <h1 className="text-3xl font-bold">AWS SAA Practice</h1>
-          <p className="mt-2 text-indigo-100">Admin sign in — question bank management</p>
+          <p className="mt-2 text-brand-100">Admin sign in — question bank management</p>
         </div>
 
         <div className="rounded-2xl bg-white p-8 shadow-xl">
@@ -58,7 +58,7 @@ export default function LoginPage() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               />
             </div>
 
@@ -73,7 +73,7 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               />
             </div>
 
@@ -84,7 +84,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={busy}
-              className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-lg bg-brand-700 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {busy ? 'Please wait…' : 'Sign in'}
             </button>
@@ -96,7 +96,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <p className="mt-4 text-center text-sm text-indigo-100">
+        <p className="mt-4 text-center text-sm text-brand-100">
           <button type="button" onClick={() => navigate('/')} className="underline underline-offset-2">
             ← Back to practice
           </button>
