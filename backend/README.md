@@ -16,11 +16,18 @@ platform. Replaces the previous Go + Gin + GORM scaffold.
 
 ```
 src/
+├── auth/
+│   ├── schemas.ts     # zod request-body validation (register/login)
+│   ├── token.ts       # JWT sign/verify helpers
+│   ├── service.ts     # bcryptjs hashing, user lookup, token issuance
+│   ├── controller.ts  # HTTP layer: parse → service → respond
+│   ├── middleware.ts  # authenticateToken (401) / requireAdmin (403)
+│   └── router.ts      # POST /register, /login; GET /me
 ├── db/
 │   ├── schema.ts   # tables, checks, indexes, relations, row/insert types
 │   ├── migrate.ts  # compiled migrator used by the Docker image at startup
 │   └── index.ts    # pg Pool + Drizzle client, DATABASE_URL wiring
-└── index.ts        # Express app (health endpoint for now)
+└── index.ts        # Express app: middleware, routes, error handler
 drizzle/            # generated SQL migrations (commit these)
 drizzle.config.ts   # drizzle-kit config (schema → SQL output, DB URL)
 ```
@@ -31,6 +38,8 @@ drizzle.config.ts   # drizzle-kit config (schema → SQL output, DB URL)
 | -------- | ------- | ------- |
 | `DATABASE_URL` | `postgres://appuser:apppassword@localhost:5433/appdb` | app, drizzle-kit |
 | `PORT` | `8080` | Express |
+| `JWT_SECRET` | `dev-secret-change-me` (warns in production) | JWT signing/verification |
+| `JWT_EXPIRES_IN` | `7d` | token lifetime (jsonwebtoken format) |
 
 - **Local dev (host machine)**: point at the compose postgres mapped to
   host port `5433` (host `5432` is taken by another project):
@@ -82,6 +91,43 @@ npm run db:migrate
 
 (`drizzle` is the migration-journal schema; drop it too, otherwise
 drizzle-kit thinks migrations are already applied.)
+
+## Auth API
+
+| Method | Path | Auth | Description |
+| ------ | ---- | ---- | ----------- |
+| `POST` | `/api/auth/register` | — | Create a user; returns `201` with `{ token, user }` |
+| `POST` | `/api/auth/login` | — | Verify credentials; returns `{ token, user }` |
+| `GET` | `/api/auth/me` | Bearer token | Echo the claims of the current token |
+
+Password rules (zod): 8–72 chars, at least one letter and one number.
+Emails are trimmed/lowercased; `user` never contains `password_hash`.
+
+```bash
+curl -X POST localhost:8080/api/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"me@example.com","password":"supersecret1"}'
+# → 201 {"token":"<jwt>","user":{"id":"...","email":"me@example.com","role":"user","createdAt":"..."}}
+
+curl -X POST localhost:8080/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"me@example.com","password":"supersecret1"}'
+# → 200 {"token":"<jwt>","user":{...}}
+
+curl localhost:8080/api/auth/me -H "Authorization: Bearer <jwt>"
+# → 200 {"user":{"userId":"...","role":"user","iat":...,"exp":...}}
+```
+
+Error semantics:
+
+- `400` — request body fails zod validation (details per field)
+- `401` — missing/malformed/expired/invalid token, or wrong credentials
+- `403` — valid token but `role !== 'admin'` (`requireAdmin`)
+- `409` — email already registered
+
+`authenticateToken` mounts `req.user` (`{ userId, role }`);
+`requireAdmin` stacks on top of it — mount them on future routes as
+`router.get('/admin/...', requireAdmin, handler)`.
 
 ## Schema
 

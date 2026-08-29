@@ -52,6 +52,7 @@ docker compose logs -f backend  # tail backend logs
 ## Configuration
 
 The backend reads its settings from environment variables (set in
-`docker-compose.yml`): `DATABASE_URL` and `PORT`. See
-[`backend/README.md`](backend/README.md) for the database schema and
-migration workflow (`npm run db:generate` / `npm run db:migrate`).
+`docker-compose.yml`): `DATABASE_URL`, `PORT`, `JWT_SECRET`, and
+`JWT_EXPIRES_IN`. See [`backend/README.md`](backend/README.md) for the
+database schema, migration workflow (`npm run db:generate` /
+`npm run db:migrate`), and the auth API.
