@@ -6,7 +6,7 @@ Docker Compose monorepo:
 | Service    | Stack                          | Port (host) |
 | ---------- | ------------------------------ | ----------- |
 | `frontend` | React + Vite + TypeScript, served by nginx | `3000` |
-| `backend`  | Go + Gin + GORM (PostgreSQL)   | `8080`      |
+| `backend`  | Node.js + TypeScript + Express + Drizzle ORM (PostgreSQL) | `8080`      |
 | `postgres` | PostgreSQL 16 (Alpine)         | `5433` → container `5432` |
 
 ## Prerequisites
@@ -45,12 +45,13 @@ docker compose logs -f backend  # tail backend logs
 
 ```
 ├── docker-compose.yml   # postgres + backend + frontend orchestration
-├── backend/             # Go API (Gin + GORM), health endpoint on :8080
+├── backend/             # Node.js API (Express + Drizzle ORM), health endpoint on :8080
 └── frontend/            # React app built with Vite, served by nginx on :3000
 ```
 
 ## Configuration
 
 The backend reads its settings from environment variables (set in
-`docker-compose.yml`): `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`,
-`DB_NAME`, and `PORT`.
+`docker-compose.yml`): `DATABASE_URL` and `PORT`. See
+[`backend/README.md`](backend/README.md) for the database schema and
+migration workflow (`npm run db:generate` / `npm run db:migrate`).

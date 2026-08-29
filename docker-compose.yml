@@ -27,11 +27,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DB_HOST: postgres
-      DB_PORT: "5432"
-      DB_USER: appuser
-      DB_PASSWORD: apppassword
-      DB_NAME: appdb
+      # Inside the compose network, postgres resolves to the db service on 5432.
+      # On the host (local dev), use postgres://appuser:apppassword@localhost:5433/appdb.
+      DATABASE_URL: postgres://appuser:apppassword@postgres:5432/appdb
       PORT: "8080"
     depends_on:
       postgres:

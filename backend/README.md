@@ -1,0 +1,170 @@
+# Backend — Node.js + TypeScript + Drizzle ORM + PostgreSQL
+
+API server and database layer for the AWS Solutions Architect practice
+platform. Replaces the previous Go + Gin + GORM scaffold.
+
+## Stack
+
+- **Runtime**: Node.js 24, Express 5 (ESM, TypeScript)
+- **ORM**: [Drizzle ORM](https://orm.drizzle.team) with the `node-postgres` driver
+- **Migrations**: [drizzle-kit](https://orm.drizzle.team/docs/drizzle-kit) —
+  versioned SQL files in [`drizzle/`](./drizzle), journal table in the
+  `drizzle.__drizzle_migrations` schema
+- **Database**: PostgreSQL 16 (see root `docker-compose.yml`)
+
+## Layout
+
+```
+src/
+├── db/
+│   ├── schema.ts   # tables, checks, indexes, relations, row/insert types
+│   ├── migrate.ts  # compiled migrator used by the Docker image at startup
+│   └── index.ts    # pg Pool + Drizzle client, DATABASE_URL wiring
+└── index.ts        # Express app (health endpoint for now)
+drizzle/            # generated SQL migrations (commit these)
+drizzle.config.ts   # drizzle-kit config (schema → SQL output, DB URL)
+```
+
+## Configuration
+
+| Variable | Default | Used by |
+| -------- | ------- | ------- |
+| `DATABASE_URL` | `postgres://appuser:apppassword@localhost:5433/appdb` | app, drizzle-kit |
+| `PORT` | `8080` | Express |
+
+- **Local dev (host machine)**: point at the compose postgres mapped to
+  host port `5433` (host `5432` is taken by another project):
+
+  ```bash
+  cp .env.example .env   # DATABASE_URL already targets localhost:5433
+  ```
+
+- **Inside docker compose**: the `backend` service overrides
+  `DATABASE_URL` to `postgres://appuser:apppassword@postgres:5432/appdb`.
+
+## Migration workflow
+
+Generate a SQL migration from `src/db/schema.ts`:
+
+```bash
+npm run db:generate     # → drizzle-kit generate (writes drizzle/000N_*.sql)
+```
+
+Apply pending migrations to the database:
+
+```bash
+npm run db:migrate      # → drizzle-kit migrate
+```
+
+> Review the generated SQL before running it against shared data. In the
+> Docker image, the compiled migrator (`node dist/db/migrate.js`) applies
+> pending migrations automatically before the server boots — the production
+> image contains no dev tooling.
+
+Other scripts:
+
+```bash
+npm run dev             # tsx watch src/index.ts
+npm run build           # tsc → dist/
+npm start               # node dist/index.js
+npm run db:studio       # drizzle-kit studio — visual DB browser
+npm run db:push         # push schema directly (DEV ONLY — bypasses migrations,
+                        # migrations are the source of truth)
+```
+
+### Resetting a dev database
+
+```bash
+docker exec backend_aws_saa psql -U appuser -d appdb \
+  -c "DROP SCHEMA public CASCADE; DROP SCHEMA drizzle CASCADE; CREATE SCHEMA public;"
+npm run db:migrate
+```
+
+(`drizzle` is the migration-journal schema; drop it too, otherwise
+drizzle-kit thinks migrations are already applied.)
+
+## Schema
+
+### `users`
+
+| Column | Type | Constraints |
+| ------ | ---- | ----------- |
+| `id` | `uuid` | PK, `gen_random_uuid()` |
+| `email` | `text` | unique, not null |
+| `password_hash` | `text` | not null |
+| `role` | `text` | `'user' \| 'admin'`, default `'user'` (CHECK) |
+| `created_at` | `timestamptz` | default `now()` |
+
+### `questions` — immutable append-only versioning
+
+Every edit inserts a **new row** with `version + 1`; `is_latest` marks the
+current version. All versions of a logical question share `group_id`.
+
+| Column | Type | Constraints |
+| ------ | ---- | ----------- |
+| `id` | `uuid` | PK, `gen_random_uuid()` |
+| `group_id` | `uuid` | not null, indexed |
+| `version` | `integer` | default 1, `>= 1` (CHECK) |
+| `is_latest` | `boolean` | default false, indexed |
+| `title` | `text` | not null |
+| `explanation` | `text` | not null |
+| `q_type` | `text` | `'single' \| 'multiple'` (CHECK) |
+| `created_at` | `timestamptz` | default `now()` |
+
+Indexes:
+
+- **unique** `(group_id, version)` — one version number per group
+- **unique partial** `(group_id) WHERE is_latest = true` — at most one
+  latest version per group (publish flow: flip old version off, insert new
+  one, in one transaction)
+- `is_latest` — fast "current version" queries
+
+### `options`
+
+| Column | Type | Constraints |
+| ------ | ---- | ----------- |
+| `id` | `uuid` | PK, `gen_random_uuid()` |
+| `question_id` | `uuid` | FK → `questions.id`, `ON DELETE CASCADE`, indexed |
+| `label` | `text` | not null (`A`, `B`, `C`, `D`, …) |
+| `content` | `text` | not null |
+| `is_correct` | `boolean` | not null, default false |
+
+### `exams` — exam sessions
+
+| Column | Type | Constraints |
+| ------ | ---- | ----------- |
+| `id` | `uuid` | PK, `gen_random_uuid()` |
+| `user_id` | `uuid` | FK → `users.id`, indexed |
+| `status` | `text` | `'in_progress' \| 'completed'`, default `'in_progress'` (CHECK) |
+| `total_count` | `integer` | default 10, `>= 1` (CHECK) |
+| `correct_count` | `integer` | default 0, `>= 0` (CHECK) |
+| `created_at` | `timestamptz` | default `now()` |
+| `completed_at` | `timestamptz` | nullable — set on submit |
+
+### `exam_records` — per-question answer snapshots
+
+| Column | Type | Constraints |
+| ------ | ---- | ----------- |
+| `id` | `uuid` | PK, `gen_random_uuid()` |
+| `exam_id` | `uuid` | FK → `exams.id`, `ON DELETE CASCADE` |
+| `question_id` | `uuid` | FK → `questions.id` (the exact version served), indexed |
+| `selected_option_ids` | `text[]` | not null, default `'{}'` — option UUIDs picked by the user |
+| `is_correct` | `boolean` | nullable — backfilled by grading on submit |
+
+Indexes:
+
+- **unique** `(exam_id, question_id)` — one record per question per exam
+  (also serves exam-level record lookups)
+- `question_id` — join/backfill queries
+
+### Design notes
+
+- Enum-like columns are `text` + CHECK constraints, not native PostgreSQL
+  enums: adding a value is a simple constraint swap instead of
+  `ALTER TYPE ... ADD VALUE` (which cannot run inside a transaction).
+- `selected_option_ids` is a typed `text[]` (UUID strings) rather than
+  `jsonb`: GIN-indexable and validated by Postgres as an array of text.
+- `exam_records.question_id` has no cascade: exam history must survive
+  even if a question is deleted.
+- Drizzle `relations()` (bottom of `schema.ts`) gives type-safe joins;
+  they are compile-time only and don't change the migrations.
