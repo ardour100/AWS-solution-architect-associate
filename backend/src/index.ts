@@ -3,6 +3,8 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import { ApiError } from './auth/errors.js';
 import authRouter from './auth/router.js';
 import { db } from './db/index.js';
+import examsRouter from './exams/router.js';
+import questionsRouter from './questions/router.js';
 
 const app = express();
 const port = Number(process.env.PORT ?? 8080);
@@ -20,6 +22,8 @@ app.get('/health', async (_req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/questions', questionsRouter);
+app.use('/api/exams', examsRouter);
 
 // JSON error handler. Express 5 forwards rejected promises from async
 // handlers here automatically; body-parser errors carry an HTTP status too.

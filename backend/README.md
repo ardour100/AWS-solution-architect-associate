@@ -129,6 +129,40 @@ Error semantics:
 `requireAdmin` stacks on top of it — mount them on future routes as
 `router.get('/admin/...', requireAdmin, handler)`.
 
+## Business APIs
+
+### Questions (admin-only — `requireAdmin`)
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/api/questions?limit=&offset=&includeDeleted=` | Latest versions, newest first |
+| `POST` | `/api/questions` | Create a question (version 1 + options) |
+| `GET` | `/api/questions/:id` | One version with its options |
+| `PUT` | `/api/questions/:id` | New immutable version (same group, version + 1) |
+| `DELETE` | `/api/questions/:id` | Soft delete (excluded from pools/listings) |
+
+Validation: 2–8 options, ≥1 correct; `single` requires exactly 1 correct.
+Body shape (create = update):
+
+```json
+{ "title": "...", "explanation": "...", "qType": "single",
+  "options": [{ "label": "A", "content": "...", "isCorrect": true }, ...] }
+```
+
+### Exams (open — optional auth; token links the exam to a user)
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `POST` | `/api/exams` | Start an exam: `{ "count": 10 }` random latest questions |
+| `GET` | `/api/exams/:examId` | Exam + records; **no answer key until submitted** |
+| `PUT` | `/api/exams/:examId/records/:recordId` | Save `{ "selectedOptionIds": [...] }` |
+| `POST` | `/api/exams/:examId/submit` | Grade (strict exact-match), backfill, close exam |
+| `GET` | `/api/exams` | The authenticated user's exams (401 if anonymous) |
+
+The exam response embeds each question's options without `is_correct`
+before submission; after submit each record gains `explanation`,
+`correctOptionIds`, and `isCorrect`.
+
 ## Schema
 
 ### `users`
@@ -145,6 +179,7 @@ Error semantics:
 
 Every edit inserts a **new row** with `version + 1`; `is_latest` marks the
 current version. All versions of a logical question share `group_id`.
+Deletion is soft (`is_deleted`) so exam history stays referentially intact.
 
 | Column | Type | Constraints |
 | ------ | ---- | ----------- |
@@ -152,6 +187,7 @@ current version. All versions of a logical question share `group_id`.
 | `group_id` | `uuid` | not null, indexed |
 | `version` | `integer` | default 1, `>= 1` (CHECK) |
 | `is_latest` | `boolean` | default false, indexed |
+| `is_deleted` | `boolean` | default false, indexed |
 | `title` | `text` | not null |
 | `explanation` | `text` | not null |
 | `q_type` | `text` | `'single' \| 'multiple'` (CHECK) |
@@ -180,7 +216,7 @@ Indexes:
 | Column | Type | Constraints |
 | ------ | ---- | ----------- |
 | `id` | `uuid` | PK, `gen_random_uuid()` |
-| `user_id` | `uuid` | FK → `users.id`, indexed |
+| `user_id` | `uuid` | FK → `users.id`, nullable (anonymous exams), indexed |
 | `status` | `text` | `'in_progress' \| 'completed'`, default `'in_progress'` (CHECK) |
 | `total_count` | `integer` | default 10, `>= 1` (CHECK) |
 | `correct_count` | `integer` | default 0, `>= 0` (CHECK) |
