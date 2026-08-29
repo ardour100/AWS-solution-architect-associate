@@ -3,7 +3,7 @@ import { useAuth } from '../auth/useAuth';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-    isActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+    isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
   }`;
 
 export default function Layout() {
@@ -20,7 +20,7 @@ export default function Layout() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <Link to="/" className="text-lg font-bold text-indigo-600">
+            <Link to="/" className="text-lg font-bold text-brand-600">
               AWS SAA Practice
             </Link>
             <nav className="flex items-center gap-1">

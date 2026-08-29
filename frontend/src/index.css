@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+/* Brand palette inspired by Amazon orange (#FF9900). */
+@theme {
+  --color-brand-50: #fff8ec;
+  --color-brand-100: #ffefd0;
+  --color-brand-200: #ffe1a3;
+  --color-brand-300: #ffcc6e;
+  --color-brand-400: #ffb433;
+  --color-brand-500: #ffa61a;
+  --color-brand-600: #ff9900;
+  --color-brand-700: #d97e00;
+  --color-brand-800: #a96400;
+  --color-brand-900: #7a4900;
+}

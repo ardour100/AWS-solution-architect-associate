@@ -28,11 +28,11 @@ export default function HomePage() {
   return (
     <div className="space-y-8">
       {/* Hero */}
-      <section className="rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-500 p-8 text-white">
+      <section className="rounded-2xl bg-gradient-to-br from-brand-700 to-brand-500 p-8 text-white">
         <h1 className="text-2xl font-bold">
           {user ? `Welcome back, ${user.email}!` : 'Practice for the AWS SAA exam'}
         </h1>
-        <p className="mt-1 text-indigo-100">
+        <p className="mt-1 text-brand-100">
           Practice exam questions for the AWS Solutions Architect Associate certification. No account needed — just
           start an exam.
         </p>
@@ -55,13 +55,13 @@ export default function HomePage() {
             max={50}
             value={count}
             onChange={(e) => setCount(Math.max(1, Math.min(50, Number(e.target.value) || 10)))}
-            className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            className="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
           />
           <button
             type="button"
             onClick={startExam}
             disabled={busy}
-            className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-brand-700 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy ? 'Creating…' : 'Start exam'}
           </button>
@@ -112,7 +112,7 @@ function ExamHistory() {
               >
                 <span className="text-sm text-slate-600">{new Date(exam.createdAt).toLocaleString()}</span>
                 {exam.status === 'completed' ? (
-                  <span className="text-sm font-semibold text-indigo-600">
+                  <span className="text-sm font-semibold text-brand-600">
                     {exam.correctCount}/{exam.totalCount} correct
                   </span>
                 ) : (

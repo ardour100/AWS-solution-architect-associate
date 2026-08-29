@@ -97,9 +97,9 @@ function ExamRunner({ exam, onSubmitted }: { exam: ExamView; onSubmitted: () => 
             onClick={() => setCurrent(index)}
             className={`h-9 w-9 rounded-lg text-sm font-medium transition-colors ${
               index === current
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-brand-700 text-white'
                 : (selections[r.id] ?? []).length > 0
-                  ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                  ? 'bg-brand-100 text-brand-700 hover:bg-brand-200'
                   : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'
             }`}
           >
@@ -127,13 +127,13 @@ function ExamRunner({ exam, onSubmitted }: { exam: ExamView; onSubmitted: () => 
                 onClick={() => void select(record.id, record.qType, option.id)}
                 className={`flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left transition-colors ${
                   selected
-                    ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-100'
+                    ? 'border-brand-500 bg-brand-50 ring-2 ring-brand-100'
                     : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
                 <span
                   className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-xs font-bold ${
-                    selected ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300 text-slate-400'
+                    selected ? 'border-brand-600 bg-brand-700 text-white' : 'border-slate-300 text-slate-400'
                   }`}
                 >
                   {option.label}
@@ -162,7 +162,7 @@ function ExamRunner({ exam, onSubmitted }: { exam: ExamView; onSubmitted: () => 
           <button
             type="button"
             onClick={() => setCurrent((i) => i + 1)}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
+            className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-800"
           >
             Next →
           </button>
@@ -222,7 +222,7 @@ function ExamResult({ exam }: { exam: ExamView }) {
     <div className="space-y-6">
       <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
         <h1 className="text-xl font-bold">Exam results</h1>
-        <p className="mt-4 text-5xl font-bold text-indigo-600">
+        <p className="mt-4 text-5xl font-bold text-brand-600">
           {exam.correctCount}
           <span className="text-2xl text-slate-400"> / {exam.totalCount}</span>
         </p>
@@ -230,11 +230,11 @@ function ExamResult({ exam }: { exam: ExamView }) {
           {percent}% correct · {passed ? 'Passing score 🎉' : 'Keep practicing!'}
         </p>
         <div className="mx-auto mt-5 h-2.5 w-full max-w-md overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full rounded-full bg-indigo-500" style={{ width: `${percent}%` }} />
+          <div className="h-full rounded-full bg-brand-500" style={{ width: `${percent}%` }} />
         </div>
         <Link
           to="/"
-          className="mt-6 inline-block rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+          className="mt-6 inline-block rounded-lg bg-brand-700 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-800"
         >
           Back to home
         </Link>
