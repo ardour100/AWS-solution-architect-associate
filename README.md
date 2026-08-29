@@ -5,7 +5,7 @@ Docker Compose monorepo:
 
 | Service    | Stack                          | Port (host) |
 | ---------- | ------------------------------ | ----------- |
-| `frontend` | React + Vite + TypeScript, served by nginx | `3000` |
+| `frontend` | React 19 + Vite + TypeScript + Tailwind, served by nginx | `3000` |
 | `backend`  | Node.js + TypeScript + Express + Drizzle ORM (PostgreSQL) | `8080`      |
 | `postgres` | PostgreSQL 16 (Alpine)         | `5433` → container `5432` |
 
@@ -29,7 +29,9 @@ The frontend is then available at <http://localhost:3000>. It proxies
 `/api/*` requests to the backend, e.g.:
 
 ```bash
-curl http://localhost:3000/api/health
+# create an anonymous practice exam through the nginx proxy
+curl -X POST http://localhost:3000/api/exams \
+  -H 'Content-Type: application/json' -d '{"count": 5}'
 ```
 
 ## Useful commands
