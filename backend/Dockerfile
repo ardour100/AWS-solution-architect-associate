@@ -1,22 +1,30 @@
-FROM golang:1.26-alpine AS builder
+# ── Stage 1: Build the TypeScript backend ──────────────
+FROM node:24-alpine AS build
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
-RUN go mod download
+# Full install (dev deps included) so typescript can compile
+COPY package.json package-lock.json ./
+RUN npm ci
 
-COPY . .
+COPY tsconfig.json ./
+COPY src ./src
+RUN npm run build
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o server .
-
-FROM alpine:latest
+# ── Stage 2: Runtime image ─────────────────────────────
+FROM node:24-alpine
 
 WORKDIR /app
+ENV NODE_ENV=production
 
-RUN apk --no-cache add ca-certificates
+# Production deps only. Migrations run at container start via the compiled
+# migrator (dist/db/migrate.js), so drizzle-kit is not needed here.
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
-COPY --from=builder /app/server .
+COPY --from=build /app/dist ./dist
+COPY drizzle ./drizzle
 
 EXPOSE 8080
-
-CMD ["./server"]
+# Apply pending migrations, then start the API
+CMD ["sh", "-c", "node dist/db/migrate.js && node dist/index.js"]
