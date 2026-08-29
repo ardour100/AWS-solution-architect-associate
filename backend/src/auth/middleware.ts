@@ -41,3 +41,16 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction): v
     next();
   });
 }
+
+/**
+ * Authenticates when an Authorization header is present, otherwise lets
+ * the request through anonymously (req.user stays undefined). A provided
+ * but invalid/expired token still gets a 401 — fail loud, don't downgrade.
+ */
+export function authenticateOptional(req: Request, res: Response, next: NextFunction): void {
+  if (!req.headers.authorization) {
+    next();
+    return;
+  }
+  authenticateToken(req, res, next);
+}

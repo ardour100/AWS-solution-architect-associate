@@ -45,6 +45,9 @@ export const questions = pgTable(
     groupId: uuid('group_id').notNull(),
     version: integer('version').notNull().default(1),
     isLatest: boolean('is_latest').notNull().default(false),
+    // Soft delete: keeps exam history referential integrity intact while
+    // removing the question from practice pools and default listings.
+    isDeleted: boolean('is_deleted').notNull().default(false),
     title: text('title').notNull(),
     explanation: text('explanation').notNull(),
     qType: text('q_type').notNull(),
@@ -60,6 +63,7 @@ export const questions = pgTable(
       .on(table.groupId)
       .where(sql`${table.isLatest} = true`),
     index('questions_is_latest_idx').on(table.isLatest),
+    index('questions_is_deleted_idx').on(table.isDeleted),
   ],
 );
 
@@ -84,9 +88,9 @@ export const exams = pgTable(
   'exams',
   {
     id: uuid('id').defaultRandom().primaryKey(),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id),
+    // Nullable: exams can be taken anonymously (no auth required on the
+    // exam endpoints); when a valid token is presented we record the user.
+    userId: uuid('user_id').references(() => users.id),
     status: text('status').notNull().default('in_progress'),
     totalCount: integer('total_count').notNull().default(10),
     correctCount: integer('correct_count').notNull().default(0),
