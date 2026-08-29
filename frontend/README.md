@@ -1,32 +1,56 @@
-# React + TypeScript + Vite
+# Frontend — React + TypeScript + Vite + Tailwind CSS
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Practice-app UI for the AWS Solutions Architect Associate platform.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + TypeScript, Vite 8, [React Router](https://reactrouter.com) (data-less declarative mode)
+- [Tailwind CSS v4](https://tailwindcss.com) via `@tailwindcss/vite` (no config file needed)
+- oxlint
 
-## React Compiler
+## Layout
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+src/
+├── api/
+│   ├── client.ts    # fetch wrapper: /api base, Bearer token, ApiError
+│   └── types.ts     # DTOs mirroring the backend responses
+├── auth/
+│   ├── context.ts   # AuthContext definition + value type
+│   ├── AuthContext.tsx  # AuthProvider (login/register/logout, localStorage)
+│   ├── useAuth.ts   # hook
+│   └── guards.tsx   # RequireAuth / RequireAdmin route guards
+├── components/      # Layout (nav + Outlet), shared states
+├── hooks/useApi.ts  # minimal hand-rolled data-fetch hook
+└── pages/
+    ├── LoginPage.tsx          # sign in / create account
+    ├── HomePage.tsx           # start an exam + exam history
+    ├── ExamPage.tsx           # take an exam, submit, review results
+    └── AdminQuestionsPage.tsx # question bank CRUD (admin only)
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Dev
+
+```bash
+npm install
+npm run dev     # Vite on :5173, /api proxied to http://localhost:8080
+```
+
+The dev proxy target assumes the backend is running (`docker compose up -d
+postgres backend`); in production nginx does the same proxying
+(`nginx.conf`, path forwarded as-is — backend routes are mounted under
+`/api`).
+
+```bash
+npm run build   # tsc -b && vite build
+npm run lint    # oxlint
+```
+
+## Auth flow
+
+- Token and user are kept in `localStorage` (`auth.token`, `auth.user`)
+  and injected as `Authorization: Bearer` by the API client.
+- A 401 on a request that carried a token clears it, so the
+  `RequireAuth` guard redirects to `/login`.
+- Admin routes are guarded by `RequireAdmin`; the nav only shows the
+  question-bank link to admins.
