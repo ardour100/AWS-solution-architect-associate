@@ -48,7 +48,10 @@ interface RequestOptions {
  * appended here automatically. Baked into the bundle at build time, so
  * it must be set before `npm run build`.
  */
-const BASE_URL: string = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api`;
+// Tolerate a trailing slash in the configured origin, otherwise the
+// result is a double slash (//api/...) which makes the edge redirect.
+const configuredBase = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/+$/, '');
+const BASE_URL: string = `${configuredBase}/api`;
 
 export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const token = getToken();
