@@ -40,6 +40,7 @@ drizzle.config.ts   # drizzle-kit config (schema → SQL output, DB URL)
 | `PORT` | `8080` | Express |
 | `JWT_SECRET` | `dev-secret-change-me` (warns in production) | JWT signing/verification |
 | `JWT_EXPIRES_IN` | `7d` | token lifetime (jsonwebtoken format) |
+| `CORS_ORIGIN` | unset (allow any origin) | comma-separated browser origins for cross-host frontends |
 
 - **Local dev (host machine)**: point at the compose postgres mapped to
   host port `5433` (host `5432` is taken by another project):

@@ -1,3 +1,4 @@
+import cors from 'cors';
 import { sql } from 'drizzle-orm';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import { ApiError } from './auth/errors.js';
@@ -8,6 +9,15 @@ import questionsRouter from './questions/router.js';
 
 const app = express();
 const port = Number(process.env.PORT ?? 8080);
+
+// CORS: the API is public (anonymous practice), so any origin is allowed
+// by default. Restrict via CORS_ORIGIN (comma-separated) when deployed,
+// e.g. CORS_ORIGIN=https://my-app.vercel.app
+const corsOrigins = (process.env.CORS_ORIGIN ?? '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+app.use(cors({ origin: corsOrigins.length > 0 ? corsOrigins : true }));
 
 app.use(express.json());
 

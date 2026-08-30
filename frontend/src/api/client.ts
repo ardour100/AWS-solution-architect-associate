@@ -41,11 +41,17 @@ interface RequestOptions {
 
 /**
  * Thin fetch wrapper: JSON in/out, Bearer token injection, typed errors.
- * All paths are relative to /api (proxied by Vite in dev, nginx in prod).
+ *
+ * Base URL: relative `/api` by default (Vite proxy in dev, nginx in the
+ * compose stack). When the frontend and backend live on different hosts
+ * (e.g. Vercel + Render), set VITE_API_BASE_URL at build time — it is
+ * baked into the bundle, so it must be set before `npm run build`.
  */
+const BASE_URL: string = import.meta.env.VITE_API_BASE_URL ?? '/api';
+
 export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const token = getToken();
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(`${BASE_URL}${path}`, {
     method: options.method ?? 'GET',
     headers: {
       'Content-Type': 'application/json',

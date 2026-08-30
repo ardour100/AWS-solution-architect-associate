@@ -46,6 +46,15 @@ npm run build   # tsc -b && vite build
 npm run lint    # oxlint
 ```
 
+## Deploying to a different host than the backend
+
+When the frontend and backend live on different hosts (e.g. Vercel +
+Render), set `VITE_API_BASE_URL` to the backend's absolute URL — it is
+baked into the bundle **at build time**, so it must be set before
+`npm run build` (in Vercel: Project → Settings → Environment Variables,
+then redeploy). Leave it unset for the compose stack / local dev, where
+nginx or the Vite proxy serve `/api`.
+
 ## Auth flow
 
 - **Practice exams are anonymous** — no registration or sign-in needed.
