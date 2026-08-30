@@ -20,7 +20,7 @@ app.use(cors({ origin: corsOrigins.length > 0 ? corsOrigins : true }));
 
 app.use(express.json());
 
-app.get('/health', async (_req, res) => {
+const healthHandler = async (_req: Request, res: Response) => {
   try {
     await db.execute(sql`select 1`);
     res.json({ status: 'ok', database: 'connected' });
@@ -28,7 +28,12 @@ app.get('/health', async (_req, res) => {
     console.error('[health] database check failed:', error);
     res.status(503).json({ status: 'degraded', database: 'disconnected' });
   }
-});
+};
+
+// Local / container health check, and the Vercel-friendly variant under
+// the /api prefix (the /api rewrite is the proven path into the function).
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
 
 app.use('/api/auth', authRouter);
 app.use('/api/questions', questionsRouter);
