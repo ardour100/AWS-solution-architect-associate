@@ -165,6 +165,33 @@ The exam response embeds each question's options without `is_correct`
 before submission; after submit each record gains `explanation`,
 `correctOptionIds`, and `isCorrect`.
 
+## Deploying on Vercel (serverless) + Neon Postgres
+
+The backend can run as a Vercel serverless function — no cold-start
+billing concerns, no sleeping instances — with a free Neon PostgreSQL
+database.
+
+1. Create a **Vercel project** for this repo with **Root Directory =
+   `backend`** (a separate project from the frontend one; Vercel builds
+   the `api/index.ts` entry automatically — no build command needed).
+2. Set environment variables on the Vercel backend project:
+   - `DATABASE_URL` — Neon connection string (use the **pooled** one,
+     `...-pooler` host, for serverless)
+   - `JWT_SECRET` — a long random value (required in production)
+   - `CORS_ORIGIN` — the frontend URL, e.g. `https://my-app.vercel.app`
+3. Run migrations + seed once from your machine against Neon:
+   ```bash
+   DATABASE_URL='<neon connection string>' npm run db:migrate
+   DATABASE_URL='<neon connection string>' npm run db:seed
+   ```
+   (Migrations don't run inside serverless functions — run them locally
+   or in CI; the compose/Docker path still migrates at startup.)
+4. On the **frontend** Vercel project set `VITE_API_BASE_URL` to the
+   backend's `*.vercel.app` URL and redeploy.
+
+The same code also deploys unchanged as a long-running container
+(Render, Railway, AWS) via the included Dockerfile.
+
 ## Schema
 
 ### `users`
