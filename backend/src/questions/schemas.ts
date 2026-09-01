@@ -14,7 +14,7 @@ const optionSchema = z
  */
 export const questionSchema = z
   .object({
-    title: z.string().trim().min(1).max(500),
+    title: z.string().trim().min(1).max(800),
     explanation: z.string().trim().min(1).max(5000),
     qType: z.enum(['single', 'multiple']),
     options: z.array(optionSchema).min(2, 'At least 2 options are required').max(8),
