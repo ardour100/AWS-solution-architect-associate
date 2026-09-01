@@ -42,7 +42,6 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-6 text-center text-white">
           <h1 className="text-3xl font-bold">AWS SAA Practice</h1>
-          <p className="mt-2 text-brand-100">Admin sign in — question bank management</p>
         </div>
 
         <div className="rounded-2xl bg-white p-8 shadow-xl">
