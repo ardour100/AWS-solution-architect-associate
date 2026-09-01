@@ -292,6 +292,7 @@ function QuestionFormModal({
               id="q-title"
               required
               rows={2}
+              maxLength={800}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Which AWS service is a fully managed object store?"
@@ -308,6 +309,7 @@ function QuestionFormModal({
                 id="q-explanation"
                 required
                 rows={3}
+                maxLength={5000}
                 value={explanation}
                 onChange={(e) => setExplanation(e.target.value)}
                 placeholder="Why is this the correct answer?"
@@ -361,6 +363,7 @@ function QuestionFormModal({
                   <input
                     type="text"
                     required
+                    maxLength={2000}
                     value={option.content}
                     onChange={(e) => patchOption(index, { content: e.target.value })}
                     placeholder={`Option ${option.label}`}
