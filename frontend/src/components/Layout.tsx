@@ -35,7 +35,7 @@ export default function Layout() {
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            {user ? (
+            {user && (
               <>
                 <span className="hidden text-slate-500 sm:inline">{user.email}</span>
                 {isAdmin && (
@@ -51,13 +51,6 @@ export default function Layout() {
                   Sign out
                 </button>
               </>
-            ) : (
-              <Link
-                to="/login"
-                className="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-              >
-                Admin sign in
-              </Link>
             )}
           </div>
         </div>
